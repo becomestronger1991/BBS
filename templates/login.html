@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="/static/jquery-3.3.1.js"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-offset-2">
+            {#  注册页面使用的v3的表单模板  #}
+            <div class="panel panel-primary" style="margin-top: 10%">
+                <div class="panel-heading">
+                    <h3 class="panel-title text-center">用户登录</h3>
+                </div>
+                <div class="panel-body">
+
+                    <form action="" class="form-group" novalidate>
+                        {% csrf_token %}
+                        <label for="id_username">用户名：</label>
+
+                        <input type="text" class="form-control" id="id_username" name="username">
+                        <br>
+                        <label for="id_password">密码：</label>
+                        <input type="password" class="form-control" id="id_password" name="password">
+                        <br>
+                        <label for="id_code">验证码：</label>
+                        <br>
+                        <input type="text" class="form-control" id="id_code" style="display: inline-block;  width: 50%"
+                               name="code">
+                        <img src="/verify_code/" alt="" style="margin-left: 30px" height="40px" id="id_img">
+                        <br>
+                        <br>
+                        <br>
+                        <input type="button" class="btn btn-danger" value="登录" style="margin-left: 47%">
+                        <span class="danger error" id="id_error" style="color: red"></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#id_img').click(function () {
+        let url = $(this).attr('src')
+        url = url + '?'
+        $('#id_img').attr('src', url)
+    })
+
+    $('.btn').click(function () {
+        let name = $('#id_username').val()
+        let pwd = $('#id_password').val()
+        let code = $('#id_code').val()
+        if (name === '') {
+            alert('用户名不能为空')
+        } else if (pwd === '') {
+            alert('密码不能为空')
+        } else if (code === '') {
+            alert('验证码不能为空')
+        }
+        $.ajax({
+            url: '',
+            type: 'post',
+            data: {username: name, password: pwd, code: code, csrfmiddlewaretoken: '{{ csrf_token }}'},
+            success: function (param) {
+                console.log(param.url)
+                console.log(param.status, typeof param.status)
+                console.log(param.msg)
+                if (param.status === 100) {
+                    location.href = param.url
+                } else {
+                    $('#id_error').html(param.msg)
+                    setTimeout(function () {
+                        $('#id_error').html(' ')
+                    }, 3000)
+                }
+            }
+        })
+    })
+
+</script>
+
+</body>
+</html>

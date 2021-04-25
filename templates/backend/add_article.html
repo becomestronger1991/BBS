@@ -1,0 +1,53 @@
+{% extends 'backend/backend_base.html' %}
+
+{% block article %}
+<h2 class="text-center">新建文章</h2>
+    <form action="" method="post" class="form form-group">
+    {% csrf_token %}
+    <p>文章标题：<input type="text" class="form-control" name="article-title"></p>
+    <p>文章内容：<textarea id="id_textarea" cols="60" rows="20" class="form-control" name="article_content"></textarea></p>
+    <p>文章标签：</p>
+    {% for tag in tag_list %}
+        <div class="checkbox">
+            <label >
+                <input type="checkbox" value="{{ tag.id }}" name="article_tag">
+                {{ tag.name }}
+            </label>
+        </div>
+    {% endfor %}
+    <p>文章分类：</p>
+    {% for category in category_list %}
+    <div class="radio">
+        <label>
+            {% if forloop.first %}
+                <input type="radio" name="optionsRadios article_category" id="optionsRadios1" value="{{ category.id }}" checked>
+                {% else %}
+                <input type="radio" name="optionsRadios article_category" id="optionsRadios1" value="{{ category.id }}">
+            {% endif %}
+        {{ category.name }}
+        </label>
+    </div>
+    {% endfor %}
+    <input type="submit" value="创建文章" class="btn btn-danger btn-block">
+        <br>
+        <br>
+        <br>
+        <script charset="utf-8" src="/static/kindeditor/kindeditor-all-min.js"></script>
+        <script>
+            KindEditor.ready(function (K) {
+                window.editor = K.create('#id_textarea', {
+                    width: '100%',
+                    height: '600px',
+                    resizeType: 1,
+                    uploadJson: '/upload_img/',
+                    extraFileUploadParams: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    }
+                })
+            })
+        </script>
+
+
+
+    </form>
+{% endblock %}

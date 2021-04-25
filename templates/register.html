@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>register</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="/static/jquery-3.3.1.js"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-offset-2">
+            {#  注册页面使用的v3的表单模板  #}
+            <div class="panel panel-primary" style="margin-top: 10%">
+                <div class="panel-heading">
+                    <h3 class="panel-title text-center">用户注册</h3>
+                </div>
+                <div class="panel-body">
+
+                    <form action="" class="form-group" novalidate>
+                    {% csrf_token %}
+                        {% for foo in form %}
+                            {#  扩展点击进入输入框的范围  #}
+                            <label for="{{ foo.auto_id }}">{{ foo.label }}:</label>
+                            {% if forloop.first %}
+                                <span style="color: red" class="pull-right"
+                                                                    id="username_msg"></span>
+                            {% endif %}
+                            {{ foo }}
+                            {#  渲染错误信息  #}
+                            <span class="danger pull-right error" style="color: red"></span>
+                            <br>
+                        {% endfor %}
+                        <label for="myfile">
+                            请选择头像: &nbsp;&nbsp;&nbsp;<img src="/static/img/default.png" alt="" height="80px" weight="80px" id="mypic">
+                        </label>
+                        <input type="file" id="myfile" style="display: none">
+                        <input type="button" class="btn btn-danger center-block" value="提交并注册">
+                        <span class="danger error" id="id_error"></span>
+                    </form>
+                </div>
+            </div>
+        </div></div></div>
+
+<script>
+    // 用户上传头像后改变当前展示的头像
+    $('#myfile').change(function () {
+        let file = $(this)[0].files[0]
+        let filereader = new FileReader()
+        filereader.readAsDataURL(file)
+        filereader.onload=function (){
+            $('#mypic').attr('src', filereader.result)
+        }
+    })
+    // 用户点击注册按钮渲染错误信息
+    $('.center-block').click(function () {
+        let pwd = $('#id_password').val()
+        let re_pwd = $('#id_re_password').val()
+        if (pwd !== re_pwd) {
+            alert('两次密码输入不一致')
+        }
+        let formdata = new FormData()
+        formdata.append('myfile', $('#myfile')[0].files[0])
+        formdata.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+        let form_data = $('.form-group').serializeArray()
+        $.each(form_data, function (index, element) {
+            formdata.append(element.name, element.value)})
+        $.ajax({
+            url: '', type: 'post', processData: false, contentType: false,
+            data: formdata,
+            success: function (param) {
+                if (param.status===100){
+                    location.href=param.url
+                }else{
+                    console.log(param)
+                    $.each(param.msg, function (key, value){
+                        $('#id_'+key).next().html(value[0]).parent().addClass('has-error')
+                    })
+                    setTimeout(function () {
+                        $('.form-group').removeClass('has-error')
+                        $('.error').html('')
+                    })
+                }
+            }
+        })
+    })
+    $('#id_username').change(function () {
+        let input = $('#id_username').val()
+        $.ajax({
+            url: '/dynamic/', type: 'post',
+            data: {username: input, csrfmiddlewaretoken: '{{ csrf_token }}'},
+            success: function (data) {
+                if (data.status === 100) {
+                    $('#username_msg').html(data.msg)
+                }
+            }
+        })
+    })
+</script>
+
+</body>
+</html>

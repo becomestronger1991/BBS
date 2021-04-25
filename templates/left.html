@@ -1,0 +1,40 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">文章分类</div>
+    <ul class="list-group">
+        {% for category in category_list %}
+            <li class="list-group-item">
+                <span class="badge">{{ category.1 }}</span>
+                <a href="/{{ username }}/category/{{ category.2 }}"><span>{{ category.0 }}</span></a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{#   标签分组     #}
+<div class="panel panel-success">
+    <div class="panel-heading"><h3 class="panel-title">文章标签</h3></div>
+    <ul class="list-group">
+        {% for tag in tag_list %}
+            <li class="list-group-item">
+                <span class="badge">{{ tag.1 }}</span>
+                <a href="/{{ username }}/tag/{{ tag.2 }}"><span>{{ tag.0 }}</span></a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{#    日期分类      #}
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h3 class="panel-title">日期归档</h3>
+    </div>
+
+    <ul class="list-group">
+        {% for date in month_list %}
+
+            <li class="list-group-item">
+                <span class="badge">{{ date.1 }}</span>
+                <a href="/{{ username }}/archive/{{ date.0|date:'Y-m' }}"><span>{{ date.0|date:'Y年m月' }}</span></a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

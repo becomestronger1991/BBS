@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="/static/jquery-3.3.1.js"></script>
+    <link rel="stylesheet" href="/static/dist/sweetalert.css">
+    <script src="/static/dist/sweetalert.min.js"></script>
+    <style>
+        li {
+            list-style: none;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        div.sweet-alert h2 {
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse" style="margin-bottom: 0px">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">BBS</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <form class="navbar-form navbar-left">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                {% if request.user.is_authenticated %}
+                    <li><a style="color: navajowhite"><img src="/media/{{ user_avatar.avatar }}" width="25px"
+                                                           height="25px">
+                        {{ request.user.username }}</a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                           aria-haspopup="true"
+                           aria-expanded="false">更多选项 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" data-toggle="modal" data-target=".bs-example-modal-lg">修改密码</a></li>
+                            <li><a href="/change_avatar/">修改头像</a></li>
+                            <li><a id="set_delete">注销账号</a></li>
+
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/logout/">退出登录</a></li>
+                        </ul>
+                        {# 模态框修改密码 #}
+                        <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
+                             aria-labelledby="myLargeModalLabel">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <h2 class="text-center">修改密码</h2>
+                                    <div class="form-group" style="margin-left: 15%">用户名
+                                        <input type="text" disabled
+                                               value="{{ request.user.username }}"
+                                               class="form-control" name="username" id="id_username" style="width: 75%">
+                                    </div>
+                                    <div class="form-group" style="margin-left: 15%">旧密码
+                                        <input type="password" id="old_pwd" class="form-control"
+                                               name="password" style="width: 75%">
+                                    </div>
+                                    <div class="form-group" style="margin-left: 15%">新密码
+                                        <input type="password" id="new_pwd" class="form-control"
+                                               name="new_pwd" style="width: 75%">
+                                    </div>
+                                    <div class="form-group" style="margin-left: 15%">确认新密码
+                                        <input type="password" id="re_new_pwd" class="form-control"
+                                               name="re_new_pwd" style="width: 75%">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <span id="err_msg" style="color: red"></span>
+                                        <button type="button" class="btn btn-default"
+                                                data-dismiss="modal">取消
+                                        </button>
+                                        <button type="button" class="btn btn-primary" id="btn_submit"
+                                                style="margin-right: 20%">提交
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <span id="show_status" style="display: none">logined</span>
+                {% else %}
+                    <span id="show_status" style="display: none"></span>
+                    <li><a href="/register/">注册</a></li>
+                    <li><a href="/login/"><span class="glyphicon glyphicon-user"></span>登录</a></li>
+                {% endif %}
+            </ul>
+
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+
+<div style="background-color: #888888">
+    <img src="/static/img/bowen.png" alt="" height="30px">
+    <img src="/static/img/jishu.png" alt="" height="30px">
+</div>
+
+<div class="container-fluid">
+    <div class="row" style="padding-top: 10px">
+        {# 左侧首页分栏 #}
+        <div class="col-md-2">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">学习领域</h3>
+                </div>
+                <div class="panel-body">
+                    <ul>
+                        <li><a>前端</a></li>
+                        <br>
+                        <li><a>后端开发</a></li>
+                        <br>
+                        <li><a>测试</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">精选头条</h3>
+                </div>
+                <div class="panel-body">
+                    <ul>
+                        <li><a href="https://ask.csdn.net/questions/7415233?spm=1000.2115.3001.4368">Unix和Linux分不清？</a>
+                        </li>
+                        <br>
+                        <li>
+                            <a href="https://blog.csdn.net/weixin_39786569/article/details/115537176?spm=1000.2115.3001.4368">美团等十家平台承诺不杀熟</a>
+                        </li>
+                        <br>
+                        <li>
+                            <a href="https://blog.csdn.net/csdnsevenn/article/details/115499523?spm=1000.2115.3001.4368">互联网相亲有多难？</a>
+                        </li>
+                        <br>
+                        <li>
+                            <a href="https://blog.csdn.net/m0_38106923/article/details/115381201?spm=1000.2115.3001.4368">6行代码，废除五片单片机</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {# 中间所有文章 #}
+        <div class="col-md-7">
+            {# 轮播图 #}
+            <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                <!-- Indicators -->
+                <ol class="carousel-indicators">
+                    <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                    <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+                    <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+                </ol>
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner" role="listbox">
+                    {% for banner in banner_list %}
+                        {% if forloop.first %}
+                            <div class="item active">
+                        {% else %}
+                            <div class="item">
+                        {% endif %}
+                    <img src="{{ banner.url }}" alt="...">
+                    <div class="carousel-caption">
+                        {{ banner.name }}
+                    </div>
+                    </div>
+                    {% endfor %}
+                    </div>
+                    <!-- Controls -->
+                    <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+                {% for article in page_queryset %}
+                    <div class="media">
+                        <h4 class="media-heading"><a href="/{{ article.blog.userinfo.username }}/article/{{ article.pk }}">{{ article.title }}</a></h4>
+                        <br>
+                        <div class="media-left">
+                            <a href="/{{ article.blog.userinfo.username }}/"><img class="media-object" src="/media/{{ article.blog.userinfo.avatar }}"
+                                            alt="..." width="50px" height="50px"></a>
+                        </div>
+                        <div class="media-body">
+                            {% if article.desc %}
+                                {{ article.desc }}
+                            {% else %}
+                                {{ article.content|truncatechars:100 }}
+                            {% endif %}
+                        </div>
+                    </div><br>
+                    <p><span><a href="/{{ article.blog.userinfo.username }}/">{{ article.blog.userinfo.username }}</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <span class="glyphicon glyphicon-pencil">{{ article.create_time|date:'Y-m-d H:i:s' }}&nbsp;&nbsp;&nbsp;</span>
+                        <span class="glyphicon glyphicon-comment"><a
+                                class="clic" name="{{ article.pk }}" href="/{{ article.blog.userinfo.username }}/article/{{ article.pk }}">评论数：</a>{{ article.comment_num }}&nbsp;&nbsp;&nbsp;</span>
+                        <span class="glyphicon glyphicon-thumbs-up"><a
+                                class="clic"
+                                name="{{ article.pk }}" id="upanddown">点赞数：</a>{{ article.up_num }}&nbsp;&nbsp;&nbsp;</span>
+                        <span id="{{ article.pk }}" style="color: red"></span></p>
+                    <hr>
+                {% endfor %}
+                <span style="margin-left: 30%">{{ page_obj.page_html|safe }}</span>
+            </div>
+            {# 右侧排行 #}
+            <div class="col-md-3">
+                <div class="panel panel-warning">
+                    <div class="panel-heading">Panel heading without title</div>
+                    <div class="panel-body">
+                        Panel content
+                    </div>
+                </div>
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Panel heading without title</div>
+                    <div class="panel-body">
+                        Panel content
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    // 首页点赞点踩登陆状态不同渲染不同信息
+    $('.clic').click(function () {
+        let status = $('#show_status').text()
+        let aid = $(this).attr('name')
+        if (status !== 'logined') {
+            $('#' + aid).html('请先<a href="/login/" style="color: red">登录</a>')
+        } else {
+            // 点击点赞，直接点赞数加一；点击评论，进入文章详情，进行评论
+        }
+    })
+    // 登录状态下，修改密码
+    $('#btn_submit').click(function () {
+        let new_pwd = $('#new_pwd').val()
+        let renew_pwd = $('#re_new_pwd').val()
+        if (new_pwd !== renew_pwd) {
+            alert('两次密码输入不一致')
+        }
+        $.ajax({
+            url: '/set_password/',
+            type: 'post',
+            data: {old_password: $('#old_pwd').val(), password: new_pwd, csrfmiddlewaretoken: '{{ csrf_token }}'},
+            success: function (data) {
+                if (data.status === 100) {
+                    location.href = data.url
+                } else {
+                    $('#err_msg').text(data.msg)
+                }
+            }
+        })
+    })
+    $('#set_delete').click(function () {
+        let currentbutton = $(this);
+        swal({
+                title: "你确定要注销账户吗?",
+                text: "注销账户后您将无法使用本账户登录!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "是的，我确认注销!",
+                cancelButtonText: "我点错了!",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+            function (isConfirm) {
+                if (isConfirm) {
+                    // 朝后端发送ajax请求删除数据之后，再弹下面的提示框
+                    $.ajax({
+                        url: '/set_delete/',
+                        type: 'post',
+                        data: {'is_delete': true, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                        success: function (data) {
+                            location.href = data.url
+                        }
+                    })
+                    swal("已注销!", "您的账户已注销.", "success");
+                } else {
+                    swal("已取消", "您的账户仍然非常安全 :)", "error");
+                }
+            });
+    })
+
+    {#$('#upanddown').click(function () {#}
+    {#        let num = $(this).siblings('span')#}
+    {#        let aid = $(this).next('span').attr('id')#}
+    {#        $.ajax({#}
+    {#            url: '/up_and_down/',#}
+    {#            type: 'post',#}
+    {#            data: {#}
+    {#                article_id: '{{ article_id }}',#}
+    {#                is_up: $(this).hasClass('diggit'),#}
+    {#                csrfmiddlewaretoken: '{{ csrf_token }}',#}
+    {#            },#}
+    {#            success: function (data) {#}
+    {#                $('#'+aid).html(data.msg)#}
+    {#                if (data.status === 100) {#}
+    {#                    num.html(Number(num.text()) + 1)#}
+    {#                }#}
+    {#            }#}
+    {#        })#}
+    {#    })#}
+
+</script>
+</html>

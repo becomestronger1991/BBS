@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% block css %}
+    <style>
+        #div_digg {
+            float: right;
+            margin-bottom: 10px;
+            margin-right: 30px;
+            font-size: 12px;
+            width: 125px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .diggit {
+            float: left;
+            width: 46px;
+            height: 52px;
+            background: url('/static/img/upup.gif') no-repeat;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 2px;
+            padding-top: 5px;
+        }
+
+        .diggnum {
+            font-size: 14px;
+            color: #075db3;
+            font-family: Verdana;
+        }
+
+        .buryit {
+            float: right;
+            margin-left: 20px;
+            width: 46px;
+            height: 52px;
+            background: url('/static/img/downdown.gif') no-repeat;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 2px;
+            padding-top: 5px;
+        }
+
+        .burynum {
+            font-size: 14px;
+            color: #075db3;
+            font-family: Verdana;
+        }
+
+        .diggword {
+            margin-top: 5px;
+            margin-left: 0;
+            font-size: 12px;
+            color: #808080;
+        }
+
+        #digg_tips {
+            color: red;
+            text-decoration: none;
+        }
+    </style>
+{% endblock %}
+
+{% block article %}
+    <h1 class="text-center">{{ article_obj.title }}</h1>
+    <div class="article_content">
+        {{ article_obj.content }}
+    </div>
+    {# 点赞样式开始 #}
+    <div class="clearfix">
+        <div id="div_digg">
+            <div class="diggit action">
+                <span class="diggnum" id="digg_count">{{ article_obj.up_num }}</span>
+            </div>
+            <div class="buryit action">
+                <span class="burynum" id="bury_count">{{ article_obj.down_num }}</span>
+            </div>
+            <div class="clear"></div>
+            <br>
+            <br>
+            <br>
+            <div class="diggword" id="digg_tips" style="color: red"></div>
+        </div>
+    </div>
+    {# 点赞样式结束 #}
+    {# 评论样式开始 #}
+    <div style="border: 5px #0f0f0f;">
+        <h4>文章评论区</h4>
+        <ul class="list-group">
+            {% for comment in comment_list %}
+                <li class="list-group-item">
+                    {% if comment.comment_id %}
+                        <div class="media">
+                            <h5 class="media-heading"># {{ forloop.counter }}楼 | <a
+                                    href="/{{ comment.user.username }}/">
+                                {{ comment.user.username }}
+                            </a> | 评论时间：{{ comment.create_time|date:'Y-m-d H:i:s' }}
+                            <span class="pull-right reply_comment" username="{{ comment.user.username }}"
+                                  parent_id="{{ comment.id }}"><a>回复</a></span></h5>
+                            <div class="media-left">
+                                <a href="#">
+                                    <img class="media-object" data-src="holder.js/64x64" alt="64x64"
+                                         src="/media/{{ comment.user.avatar }}/"
+                                         data-holder-rendered="true" style="width: 64px; height: 64px;">
+                                </a>
+                            </div>
+                            <div class="media-body"><br>{{ comment.content }}</div>
+                                <br>
+                                <div class="media well">
+                                    <h5 class="media-heading"> <a
+                                    href="/{{ comment.comment_id.user.username }}/">
+                                {{ comment.comment_id.user.username }}
+                            </a> | 评论时间：{{ comment.comment_id.create_time|date:'Y-m-d H:i:s' }}</h5>
+                                    <div class="media-left">
+                                            <img class="media-object" data-src="holder.js/64x64" alt="64x64"
+                                                 src="/media/{{ comment.comment_id.user.avatar }}/"
+                                                 data-holder-rendered="true" style="width: 64px; height: 64px;">
+                                    </div>
+                                    <div class="media-body"><br>{{ comment.comment_id.content }}</div>
+                                </div>
+                            </div>
+                    {% else %}
+                        <div class="media">
+                            <h5 class="media-heading"># {{ forloop.counter }}楼 | <a
+                                    href="/{{ comment.user.username }}/">
+                                {{ comment.user.username }}
+                            </a> | 评论时间：{{ comment.create_time|date:'Y-m-d H:i:s' }}
+                            <span class="pull-right reply_comment" username="{{ comment.user.username }}"
+                                  parent_id="{{ comment.id }}"><a>回复</a></span></h5>
+                            <div class="media-left">
+                                    <img class="media-object" data-src="holder.js/64x64" alt="64x64"
+                                         src="/media/{{ comment.user.avatar }}/"
+                                         data-holder-rendered="true" style="width: 64px; height: 64px;">
+                            </div>
+                            <div class="media-body"><br>{{ comment.content }}</div>
+                        </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {# 评论样式结束 #}
+    <div style="margin-bottom: 20px">
+        <p><span class="glyphicon glyphicon-comment"></span>发表评论</p>
+        <div>
+            <textarea name="comment" id="id_comment" cols="60" rows="10"></textarea>
+        </div>
+        <button class="btn btn-primary" id="btn_comment">提交评论</button>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        // 点赞点踩效果
+        var parent_id = ''
+        $('.action').click(function () {
+            let num = $(this).children('span')
+            $.ajax({
+                url: '/up_and_down/',
+                type: 'post',
+                data: {
+                    article_id: '{{ article_id }}',
+                    is_up: $(this).hasClass('diggit'),
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function (data) {
+                    $('.diggword').html(data.msg)
+                    if (data.status === 100) {
+                        num.html(Number(num.text()) + 1)
+                    }
+                }
+            })
+        })
+
+        // 点击回复所对应的事件
+        $('.reply_comment').click(function () {
+            let username = $(this).attr('username')
+            $('#id_comment').val('@' + username + '\n').focus()
+            parent_id = $(this).attr('parent_id')
+        })
+
+        // 用户点击评论按钮朝后端发送Ajax请求
+        $('#btn_comment').click(function () {
+            let content = $('#id_comment').val()
+            if (parent_id){  // 是子评论
+                // 找content这个文本对应的第一个\n的位置
+                let count = content.indexOf('\n')+1
+                // 从当前位置往后
+                content = content.slice(count)
+                console.log(content)
+            }
+            $.ajax({
+                url: '/comment/',
+                type: 'post',
+                data: {article_id: '{{ article_id }}', comment: content, parent_id: parent_id, csrfmiddlewaretoken: '{{ csrf_token }}'},
+                success: function (data) {
+                    if (data.status===100){ // 根评论，无需渲染子评论的样式
+                        let res = `
+                    <li class="list-group-item">
+                        <div>
+                            <p class='glyphicon glyphicon-comment'> 新评论：</p>
+                            <p>${data.content}</p>
+                        </div>
+                    </li>
+                        `
+                        $('.list-group').append(res)
+                    }else{
+                        let res = `
+                    <li class="list-group-item">
+                        <div>
+                            <p class='glyphicon glyphicon-comment'> 新评论：</p>
+                            <p>@${data.parent}----${data.parent_comment}</p>
+                            <p>${data.content}</p>
+                        </div>
+                    </li>
+                        `
+                        // 将这个字符串追加到评论楼中
+                        $('.list-group').append(res)
+                        // 清空输入框
+                        $('#id_comment').val('')
+                        // 不要忘记将parent_id置空
+                        parent_id = ''
+                    }
+                }
+            })
+        })
+    </script>
+{% endblock %}

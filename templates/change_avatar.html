@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>register</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="/static/jquery-3.3.1.js"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-offset-2">
+            {#  注册页面使用的v3的表单模板  #}
+            <div class="panel panel-primary" style="margin-top: 10%">
+                <div class="panel-heading">
+                    <h3 class="panel-title text-center">用户修改头像</h3>
+                </div>
+                <div class="panel-body">
+                    <form action="" class="form-group" novalidate>
+                        {% csrf_token %}
+                        <div class="form-group" style="font-weight: bold">用户名：
+                            <input type="text" disabled
+                                   value="{{ request.user.username }}"
+                                   class="form-control" style="margin-top: 10px">
+                        </div>
+                        <br>
+                        <label>
+                            当前使用头像:&nbsp;&nbsp;&nbsp;<img src="/media/{{ user_avatar.avatar }}" alt="" height="100px"
+                                                          weight="100px">
+                        </label>
+                        <br>
+                        <br>
+                        <br>
+                        <label for="myfile">
+                            请选择要替换的头像: &nbsp;&nbsp;&nbsp;<img src="/static/img/default.png" alt="" height="80px"
+                                                              weight="80px" id="mypic">
+                        </label>
+                        <input type="file" id="myfile" style="display: none">
+                        <span class="danger error pull-right" id="id_error" style="color: red"></span>
+                        <input type="button" class="btn btn-danger center-block" value="确认更换头像">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var img_src = $('#mypic').attr('src')
+    // 用户上传头像后改变当前展示的头像
+    $('#myfile').change(function () {
+        let file = $(this)[0].files[0]
+        let filereader = new FileReader()
+        filereader.readAsDataURL(file)
+        filereader.onload = function () {
+            $('#mypic').attr('src', filereader.result)
+        }
+    })
+    $('.btn').click(function () {
+        let formdata = new FormData()
+        let img_src2 = $('#mypic').attr('src')
+        if (img_src === img_src2) {
+            $('#id_error').text('请选择要更改的头像')
+        } else {
+            let myfile = $('#myfile')[0].files[0]
+            formdata.append('myfile', myfile)
+            formdata.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+            $.ajax({
+                url: '/change_avatar/',
+                type: 'post',
+                contentType: false,
+                processData: false,
+                data: formdata,
+                success: function () {
+                    location.href='/index/'
+                }
+            })
+        }
+    })
+</script>
+
+</body>
+</html>
